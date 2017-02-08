@@ -67,7 +67,7 @@ class FeatureTransformer:
 
     def _print_feature_description(self, feature_des):
         description = ''
-        for _, feature_item in feature_des:
+        for _, feature_item in feature_des.items():
             feature_name = feature_item['name']
             if 'is' in feature_item:
                 description += '[{} is {}]'.format(feature_name, feature_item['is'])
