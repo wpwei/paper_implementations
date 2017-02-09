@@ -83,9 +83,11 @@ class FeatureTransformer:
         self.lgbc.fit(X_train, y_train, categorical_feature=categorical_feature)
         model = self.lgbc.booster_.dump_model()
         transformed_feature, feature_description = self._resolve_gbdt(model, X_train.values)
+        support = transformed_feature.sum(axis=0).reshape(-1, 1)
         self.lrc.fit(transformed_feature, y_train.values)
         transformed_feature_table = pd.DataFrame([self.lrc.coef_.flatten().tolist(), feature_description]).T
         transformed_feature_table.columns = ['weight', 'feature']
+        transformed_feature_table['support'] = pd.Series(support.flatten())
         transformed_feature_table['weight_abs'] = transformed_feature_table['weight'].abs()
         transformed_feature_table = transformed_feature_table.sort_values('weight_abs', ascending=False).drop(
             'weight_abs', axis=1)
