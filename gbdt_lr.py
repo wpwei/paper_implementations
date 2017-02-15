@@ -80,6 +80,9 @@ class FeatureTransformer:
         return description
 
     def fit(self, X_train, y_train, categorical_feature='auto'):
+        max_bin = np.max([X_train[cate].unique().size for cate in X_train.select_dtypes(['category'])])
+        max_bin = max(255, max_bin)
+        self.lgbc = LGBMClassifier(max_bin=max_bin)
         self.lgbc.fit(X_train, y_train, categorical_feature=categorical_feature)
         model = self.lgbc.booster_.dump_model()
         transformed_feature, feature_description = self._resolve_gbdt(model, X_train.values)
