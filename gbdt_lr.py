@@ -5,8 +5,8 @@ from sklearn.linear_model import LogisticRegression
 import copy
 class FeatureTransformer:
     def __init__(self):
-        self.lgbc = LGBMClassifier()
-        self.lrc = LogisticRegression(penalty='l1')
+        self.lgbc = None
+        self.lrc = None
         self.feature_importance = None
 
     def _update_feature_desciption(self, feature_description, feature, threshold, boundary):
@@ -79,14 +79,15 @@ class FeatureTransformer:
                 description += '[{} < {} <= {}]'.format(left_bound, feature_name, right_bound)
         return description
 
-    def fit(self, X_train, y_train, categorical_feature='auto'):
+    def fit(self, X_train, y_train, categorical_feature='auto', max_depth=-1, C=1.0):
         max_bin = np.max([X_train[cate].unique().size for cate in X_train.select_dtypes(['category'])])
         max_bin = max(255, max_bin)
-        self.lgbc = LGBMClassifier(max_bin=max_bin)
+        self.lgbc = LGBMClassifier(max_bin=max_bin, max_depth=max_depth)
         self.lgbc.fit(X_train, y_train, categorical_feature=categorical_feature)
         model = self.lgbc.booster_.dump_model()
         transformed_feature, feature_description = self._resolve_gbdt(model, X_train.values)
         support = transformed_feature.sum(axis=0).reshape(-1, 1)
+        self.lrc = self.lrc = LogisticRegression(penalty='l1', C=C)
         self.lrc.fit(transformed_feature, y_train.values)
         transformed_feature_table = pd.DataFrame([self.lrc.coef_.flatten().tolist(), feature_description]).T
         transformed_feature_table.columns = ['weight', 'feature']
