@@ -3,6 +3,8 @@ import pandas as pd
 from lightgbm import LGBMClassifier
 from sklearn.linear_model import LogisticRegression
 import copy
+
+
 class FeatureTransformer:
     def __init__(self):
         self.lgbc = None
@@ -28,7 +30,6 @@ class FeatureTransformer:
             if boundary == 'is not':
                 feature_item[boundary] = [threshold]
             feature_description[feature] = feature_item
-
 
     def _resolve_tree(self, data, tree, index, feature):
         if 'leaf_index' in tree:
@@ -80,7 +81,10 @@ class FeatureTransformer:
         return description
 
     def fit(self, X_train, y_train, categorical_feature='auto', max_depth=-1, C=1.0):
-        max_bin = np.max([X_train[cate].unique().size for cate in X_train.select_dtypes(['category'])])
+        if categorical_feature=='auto':
+            max_bin = np.max([X_train[cate].unique().size for cate in X_train.select_dtypes(['category'])])
+        else:
+            max_bin = np.max([X_train[cate].unique().size for cate in categorical_feature])
         max_bin = max(255, max_bin)
         self.lgbc = LGBMClassifier(max_bin=max_bin, max_depth=max_depth)
         self.lgbc.fit(X_train, y_train, categorical_feature=categorical_feature)
