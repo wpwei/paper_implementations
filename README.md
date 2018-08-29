@@ -1,2 +1,10 @@
-# GBDT_LR
-Implementation of ADKDD'14 paper from Facebook
+# Paper Implementations
+
+Implementations of machine learning related papers.
+
+## List of projects
+
+1. [GBDT + LR](./GBDT_LR)
+2. [A2C](./A2C)
+
+More to come.
